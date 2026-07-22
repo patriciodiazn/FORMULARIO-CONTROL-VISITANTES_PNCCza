@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNCC Cayambe Coca - Solicitudes de Ingreso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #0F6E56;
+            --primary-light: #E1F5EE;
+            --primary-dark: #085041;
+            --gray: #f1f5f9;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --radius: 12px;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #eef2f5;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .app-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .main-header {
+            background: white;
+            border-radius: 24px;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--primary);
+        }
+        .logo-area h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .logo-area small {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 400;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .header-actions button {
+            background: var(--gray);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .header-actions button:hover {
+            background: #e2e8f0;
+        }
+        .header-actions .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .header-actions .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: white;
+            border-radius: var(--radius);
+            padding: 6px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        .tab:hover:not(.active) {
+            background: var(--gray);
+        }
+
+        /* PANELS */
+        .panel {
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+
+        /* CARDS */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* FORM GRID */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-grid .full {
+            grid-column: 1 / -1;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+        .field label .required {
+            color: #dc2626;
+        }
+        .field input,
+        .field select,
+        .field textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: 0.2s;
+            background: white;
+        }
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: 2px solid var(--primary);
+            border-color: transparent;
+        }
+        .field textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* TYPE SELECTOR */
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .type-btn {
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 10px;
+            padding: 10px 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 11px;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .type-btn i {
+            font-size: 18px;
+        }
+        .type-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        .type-btn:hover:not(.active) {
+            background: var(--gray);
+        }
+
+        /* VISITORS TABLE */
+        .visitors-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .visitors-table th {
+            background: var(--gray);
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+            color: #475569;
+        }
+        .visitors-table td {
+            padding: 4px 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .visitors-table input,
+        .visitors-table select {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 12px;
+            background: transparent;
+        }
+        .visitors-table input:focus,
+        .visitors-table select:focus {
+            border-color: var(--primary);
+            background: white;
+            outline: none;
+        }
+        .add-row-btn {
+            margin-top: 8px;
+            padding: 6px 14px;
+            border: 1px dashed var(--border);
+            background: transparent;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+        }
+        .add-row-btn:hover {
+            background: var(--gray);
+        }
+
+        /* SUBMIT BAR */
+        .submit-bar {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .submit-bar .left {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .submit-bar .right {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover {
+            background: var(--gray);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #15803d;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        /* SOLICITUDES LIST */
+        .solicitudes-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .solicitud-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: white;
+            transition: 0.2s;
+        }
+        .solicitud-item:hover {
+            border-color: var(--primary);
+        }
+        .solicitud-item .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .solicitud-item .codigo {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 15px;
+        }
+        .solicitud-item .estado {
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+        .estado-pendiente {
+            background: #f59e0b;
+        }
+        .estado-aprobada {
+            background: #22c55e;
+        }
+        .estado-rechazada {
+            background: #ef4444;
+        }
+        .solicitud-item .detalle {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            font-size: 13px;
+            color: #475569;
+            margin: 8px 0;
+        }
+        .solicitud-item .acciones {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        /* RESPONDER MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-box .close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .modal-box .close:hover {
+            color: #475569;
+        }
+        .modal-box h2 {
+            color: var(--text);
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 400px;
+        }
+        .toast.error {
+            background: #dc2626;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .solicitud-item .detalle {
+                grid-template-columns: 1fr 1fr;
+            }
+            .main-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-actions {
+                justify-content: stretch;
+            }
+            .header-actions button {
+                flex: 1;
+                justify-content: center;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                justify-content: center;
+            }
+            .submit-bar {
+                flex-direction: column;
+            }
+            .submit-bar .left,
+            .submit-bar .right {
+                justify-content: center;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--gray);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--gray);
+            color: #475569;
+        }
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-gold {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .code-display {
+            background: var(--gray);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .search-bar input,
+        .search-bar select {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .search-bar input:focus,
+        .search-bar select:focus {
+            outline: 2px solid var(--primary);
+            border-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-card .label {
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- HEADER -->
+    <header class="main-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-tree"></i></div>
+            <div>
+                <h1>PNCC Cayambe Coca</h1>
+                <small>Parque Nacional · Sistema de Solicitudes</small>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button onclick="switchTab('solicitar')" id="tabBtnSolicitar"><i class="fas fa-pen"></i> Solicitar</button>
+            <button onclick="switchTab('admin')" id="tabBtnAdmin"><i class="fas fa-shield-alt"></i> Administrar</button>
+        </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('solicitar')"><i class="fas fa-pen"></i> Nueva Solicitud</button>
+        <button class="tab" onclick="switchTab('admin')"><i class="fas fa-list"></i> Gestionar Solicitudes</button>
+        <button class="tab" onclick="switchTab('analisis')"><i class="fas fa-chart-bar"></i> Análisis</button>
+    </div>
+
+    <!-- PANEL SOLICITAR -->
+    <div class="panel active" id="panelSolicitar">
+        <!-- Formulario -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-file-alt"></i> Formulario de Solicitud de Ingreso</div>
+
+            <!-- Tipo de Solicitud -->
+            <div class="type-selector" id="typeSelector">
+                <button class="type-btn active" data-type="ingreso" onclick="cambiarTipo('ingreso',this)"><i class="fas fa-walking"></i>Ingreso</button>
+                <button class="type-btn" data-type="pesca" onclick="cambiarTipo('pesca',this)"><i class="fas fa-water"></i>Pesca</button>
+                <button class="type-btn" data-type="senderismo" onclick="cambiarTipo('senderismo',this)"><i class="fas fa-mountain"></i>Senderismo</button>
+                <button class="type-btn" data-type="montanismo" onclick="cambiarTipo('montanismo',this)"><i class="fas fa-hiking"></i>Montañismo</button>
+                <button class="type-btn" data-type="evento" onclick="cambiarTipo('evento',this)"><i class="fas fa-trophy"></i>Evento</button>
+                <button class="type-btn" data-type="proyecto" onclick="cambiarTipo('proyecto',this)"><i class="fas fa-building"></i>Proyecto</button>
+                <button class="type-btn" data-type="filmacion" onclick="cambiarTipo('filmacion',this)"><i class="fas fa-video"></i>Filmación</button>
+                <button class="type-btn" data-type="investigacion" onclick="cambiarTipo('investigacion',this)"><i class="fas fa-microscope"></i>Investigación</button>
+            </div>
+
+            <!-- Código y Fecha -->
+            <div class="form-grid" style="margin-bottom:16px;">
+                <div class="field">
+                    <label>Código de Solicitud</label>
+                    <div class="code-display" id="codigoValor">SOL-MAE-DAPOFC-PNCCza-INGRESO-2026-001</div>
+                </div>
+                <div class="field">
+                    <label>Fecha de Emisión</label>
+                    <div class="code-display" id="fechaEmisionTexto">Cayambe, 22-07-2026</div>
+                </div>
+            </div>
+
+            <!-- Datos Responsable -->
+            <div class="form-grid">
+                <div class="field full">
+                    <label>Institución / Empresa / Club</label>
+                    <input type="text" id="institucion" placeholder="Ej: Club de Montaña">
+                </div>
+                <div class="field">
+                    <label>Apellidos <span class="required">*</span></label>
+                    <input type="text" id="apellidos" required>
+                </div>
+                <div class="field">
+                    <label>Nombres <span class="required">*</span></label>
+                    <input type="text" id="nombres" required>
+                </div>
+                <div class="field">
+                    <label>Documento (CI/Pasaporte) <span class="required">*</span></label>
+                    <input type="text" id="documento" required>
+                </div>
+                <div class="field">
+                    <label>Nacionalidad</label>
+                    <select id="pais">
+                        <option>Ecuador</option><option>Colombia</option><option>Perú</option>
+                        <option>España</option><option>Estados Unidos</option><option>Otro</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Teléfono <span class="required">*</span></label>
+                    <input type="tel" id="telefono" required>
+                </div>
+                <div class="field full">
+                    <label>Correo electrónico <span class="required">*</span></label>
+                    <input type="email" id="email" required>
+                </div>
+            </div>
+
+            <!-- Datos Ingreso -->
+            <div class="form-grid" style="margin-top:8px;">
+                <div class="field">
+                    <label>Fecha Ingreso <span class="required">*</span></label>
+                    <input type="date" id="fechaIngreso" required>
+                </div>
+                <div class="field">
+                    <label>Fecha Salida <span class="required">*</span></label>
+                    <input type="date" id="fechaSalida" required>
+                </div>
+                <div class="field">
+                    <label>Placa vehículo(s)</label>
+                    <input type="text" id="placa" placeholder="AAA-1234">
+                </div>
+                <div class="field full">
+                    <label>Sitio de Visita (Destino) <span class="required">*</span></label>
+                    <select id="destinoSelect" required>
+                        <option value="">Seleccionar...</option>
+                        <option>Laguna Parcacocha</option>
+                        <option>Laguna de Anteojos</option>
+                        <option>Sendero del Oso</option>
+                        <option>Sendero Cascada Milagrosa</option>
+                        <option>Laguna Verde</option>
+                        <option>Ruta al Vértice</option>
+                        <option>Glaciar Hermoso</option>
+                        <option>Cumbre Nevado Cayambe</option>
+                        <option value="otro">Otro (especificar en Objetivo)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Actividad principal</label>
+                    <select id="actividad" onchange="sincronizarActividad(this.value)">
+                        <option value="ingreso">Ingreso al área protegida</option>
+                        <option value="pesca">Pesca Recreativa</option>
+                        <option value="senderismo">Senderismo</option>
+                        <option value="montanismo">Montañismo</option>
+                        <option value="evento">Evento deportivo</option>
+                        <option value="proyecto">Proyecto/Empresa</option>
+                        <option value="filmacion">Filmación</option>
+                        <option value="investigacion">Investigación</option>
+                    </select>
+                </div>
+                <div class="field" id="alojField" style="display:none;">
+                    <label>Alojamiento</label>
+                    <input type="text" id="alojamiento" placeholder="Nombre del refugio">
+                </div>
+                <div class="field full">
+                    <label>Objetivo / descripción de la visita <span class="required">*</span></label>
+                    <textarea id="objetivo" rows="2" required placeholder="Describir el propósito principal..."></textarea>
+                </div>
+            </div>
+
+            <!-- Secciones extra (guía, proyecto, etc) -->
+            <div id="guiaSection" style="display:none; margin-top:12px;">
+                <div class="card-title"><i class="fas fa-id-card"></i> Guía / Líder</div>
+                <div class="form-grid">
+                    <div class="field"><label>Apellidos</label><input type="text" id="guiaApellido"></div>
+                    <div class="field"><label>Nombres</label><input type="text" id="guiaNombre"></div>
+                    <div class="field"><label>Carnet Nº</label><input type="text" id="guiaCarnet"></div>
+                    <div class="field"><label>Vigencia</label><input type="date" id="guiaVigencia"></div>
+                    <div class="field"><label>Nacionalidad</label><select id="guiaNacionalidad"><option>Ecuador</option><option>Otro</option></select></div>
+                    <div class="field"><label>Teléfono</label><input type="tel" id="guiaTelefono"></div>
+                </div>
+            </div>
+            <div id="proyectoSection" style="display:none; margin-top:12px;">
+                <div class="card-title"><i class="fas fa-briefcase"></i> Proyecto / Empresa</div>
+                <div class="form-grid">
+                    <div class="field"><label>Nombre proyecto</label><input type="text" id="proyectoNombre"></div>
+                    <div class="field"><label>Dirección</label><input type="text" id="proyectoDireccion"></div>
+                    <div class="field"><label>Días en AP</label><input type="number" id="proyectoDias"></div>
+                    <div class="field"><label>RUC empresa</label><input type="text" id="ruc"></div>
+                </div>
+            </div>
+            <div id="investigacionSection" style="display:none; margin-top:12px;">
+                <div class="card-title"><i class="fas fa-microscope"></i> Investigación</div>
+                <div class="form-grid">
+                    <div class="field full"><label>Título investigación</label><input type="text" id="invNombre"></div>
+                    <div class="field full"><label>Entidad que emite permiso</label><input type="text" id="invEntidad"></div>
+                    <div class="field"><label>Nº autorización</label><input type="text" id="invNumero"></div>
+                    <div class="field"><label>Vigencia desde</label><input type="date" id="invDesde"></div>
+                    <div class="field"><label>Vigencia hasta</label><input type="date" id="invHasta"></div>
+                </div>
+            </div>
+            <div id="eventoSection" style="display:none; margin-top:12px;">
+                <div class="card-title"><i class="fas fa-trophy"></i> Evento deportivo</div>
+                <div class="form-grid">
+                    <div class="field full"><label>Nombre evento</label><input type="text" id="eventoNombre"></div>
+                    <div class="field"><label>Competidores</label><input type="number" id="nCompetidores" min="0"></div>
+                    <div class="field"><label>Logística</label><input type="number" id="nLogistica" min="0"></div>
+                </div>
+            </div>
+
+            <!-- Visitantes -->
+            <div style="margin-top:16px;">
+                <div class="card-title"><i class="fas fa-users"></i> Visitantes <span id="paxCounter">(0 registrados)</span></div>
+                <div style="font-size:11px; color:#64748b; margin-bottom:8px;">
+                    <i class="fas fa-info-circle"></i> Complete TODOS los visitantes. Quien no conste NO podrá ingresar.
+                </div>
+                <table class="visitors-table">
+                    <thead>
+                        <tr>
+                            <th style="width:30px">#</th>
+                            <th>Nombre completo *</th>
+                            <th style="width:130px">Documento *</th>
+                            <th style="width:90px">País</th>
+                            <th style="width:45px">Edad</th>
+                            <th style="width:60px">Género</th>
+                            <th style="width:55px">Guía</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitorsBody"></tbody>
+                </table>
+                <button class="add-row-btn" onclick="agregarFilaVisitante()"><i class="fas fa-plus"></i> Agregar visitante</button>
+            </div>
+
+            <!-- Normas -->
+            <div style="margin-top:16px;">
+                <div class="card-title"><i class="fas fa-gavel"></i> Normas aplicables</div>
+                <div id="normasTexto" style="background:var(--gray); padding:12px 16px; border-radius:8px; font-size:13px; color:#475569;">
+                    Horario 08:00-14:00. No mascotas ni armas. Respetar la flora y fauna. No dejar residuos.
+                </div>
+            </div>
+
+            <!-- Compromiso -->
+            <div style="margin-top:16px; background:#f0fdf4; border-left:4px solid #22c55e; padding:12px 16px; border-radius:8px; font-size:13px;">
+                <p><strong>Me comprometo a:</strong></p>
+                <ol style="margin-left:20px; color:#166534;">
+                    <li>Presentar la autorización ante el personal del Área Protegida.</li>
+                    <li>Presentar el acta de descargo debidamente firmada por cada visitante.</li>
+                    <li>Presentar el documento de identificación por cada visitante al ingreso.</li>
+                </ol>
+                <label style="display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer;">
+                    <input type="checkbox" id="compromisoCheck"> Acepto el compromiso y disposiciones del PNCC <span class="required">*</span>
+                </label>
+            </div>
+
+            <!-- SUBMIT BAR -->
+            <div class="submit-bar">
+                <div class="left">
+                    <button class="btn btn-outline" onclick="limpiarFormulario()"><i class="fas fa-undo-alt"></i> Limpiar</button>
+                </div>
+                <div class="right">
+                    <button class="btn btn-outline" onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                    <button class="btn btn-outline" onclick="exportarWord()"><i class="fas fa-file-word"></i> Word</button>
+                    <button class="btn btn-outline" onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button class="btn btn-primary" onclick="enviarSolicitud()"><i class="fas fa-paper-plane"></i> Enviar Solicitud</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL ADMIN -->
+    <div class="panel" id="panelAdmin">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-list"></i> Solicitudes Recibidas</div>
+
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><div class="number" id="totalSolicitudes">0</div><div class="label">Total</div></div>
+                <div class="stat-card"><div class="number" id="pendientesCount">0</div><div class="label">Pendientes</div></div>
+                <div class="stat-card"><div class="number" id="aprobadasCount">0</div><div class="label">Aprobadas</div></div>
+                <div class="stat-card"><div class="number" id="rechazadasCount">0</div><div class="label">Rechazadas</div></div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="buscarSolicitud" placeholder="Buscar por código, solicitante..." oninput="renderizarSolicitudes()">
+                <select id="filtroEstado" onchange="renderizarSolicitudes()">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="aprobada">Aprobada</option>
+                    <option value="rechazada">Rechazada</option>
+                </select>
+                <select id="filtroTipo" onchange="renderizarSolicitudes()">
+                    <option value="">Todos los tipos</option>
+                    <option value="ingreso">Ingreso</option>
+                    <option value="pesca">Pesca</option>
+                    <option value="senderismo">Senderismo</option>
+                    <option value="montanismo">Montañismo</option>
+                    <option value="evento">Evento</option>
+                    <option value="proyecto">Proyecto</option>
+                    <option value="filmacion">Filmación</option>
+                    <option value="investigacion">Investigación</option>
+                </select>
+                <button class="btn btn-outline" onclick="exportarSolicitudesExcel()"><i class="fas fa-file-excel"></i> Exportar Todo</button>
+                <button class="btn btn-danger btn-sm" onclick="eliminarTodasSolicitudes()"><i class="fas fa-trash"></i> Eliminar todas</button>
+            </div>
+
+            <div class="solicitudes-list" id="listaSolicitudes"></div>
+        </div>
+    </div>
+
+    <!-- PANEL ANÁLISIS -->
+    <div class="panel" id="panelAnalisis">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-chart-bar"></i> Análisis de Solicitudes</div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
+                <div class="stat-card"><div class="number" id="analisisTotal">0</div><div class="label">Total</div></div>
+                <div class="stat-card"><div class="number" id="analisisVisitantes">0</div><div class="label">Visitantes totales</div></div>
+                <div class="stat-card"><div class="number" id="analisisAprobadas">0</div><div class="label">Aprobadas</div></div>
+                <div class="stat-card"><div class="number" id="analisisPendientes">0</div><div class="label">Pendientes</div></div>
+            </div>
+
+            <div style="margin-top:16px;">
+                <h4 style="font-size:14px; color:#475569; margin-bottom:8px;">Tipos de actividad</h4>
+                <div id="analisisTipos" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+            </div>
+
+            <div style="margin-top:16px;">
+                <h4 style="font-size:14px; color:#475569; margin-bottom:8px;">Destinos más solicitados</h4>
+                <div id="analisisDestinos" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <button class="btn btn-outline" onclick="exportarAnalisisExcel()"><i class="fas fa-file-excel"></i> Exportar Análisis a Excel</button>
+                <button class="btn btn-outline" onclick="exportarAnalisisPDF()"><i class="fas fa-file-pdf"></i> Exportar Análisis a PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RESPONDER -->
+    <div class="modal-overlay" id="responderModal">
+        <div class="modal-box">
+            <button class="close" onclick="cerrarResponder()">&times;</button>
+            <h2><i class="fas fa-reply" style="color:var(--primary);"></i> Responder Solicitud</h2>
+            <p style="color:#64748b; margin-bottom:12px; font-size:14px;"><strong id="responderCodigo"></strong></p>
+            <div class="field" style="margin-bottom:12px;">
+                <label>Estado</label>
+                <select id="responderEstado" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
+                    <option value="aprobada">Aprobar</option>
+                    <option value="rechazada">Rechazar</option>
+                    <option value="pendiente">Pendiente</option>
+                </select>
+            </div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Mensaje para el solicitante</label>
+                <textarea id="responderMensaje" rows="4" placeholder="Escribe tu respuesta aquí..." style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; width:100%;"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="enviarRespuesta()" style="width:100%; justify-content:center;"><i class="fas fa-paper-plane"></i> Enviar Respuesta</button>
+            <input type="hidden" id="responderIdx">
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"><i class="fas fa-check-circle" id="toastIcon"></i> <span id="toastMsg"></span></div>
+</div>
+
+<script>
+    // ======================== CONFIGURACIÓN ========================
+    let tipoActual = 'ingreso';
+    const normas = {
+        ingreso: 'Horario 08:00-14:00. No mascotas ni armas. Respetar la flora y fauna. No dejar residuos.',
+        pesca: 'Máx 5 truchas por persona. Licencia requerida. Uso de anzuelo sin muerte.',
+        senderismo: 'Seguir senderos autorizados. No salir de las rutas marcadas.',
+        montanismo: 'Equipo técnico requerido. Guía certificado obligatorio. Registro en refugio.',
+        evento: 'Lista de participantes obligatoria. Seguro de accidentes requerido.',
+        filmacion: 'Permiso especial requerido. Entregar copia final al Área Protegida.',
+        investigacion: 'Permiso vigente del MAATE. Entregar informe final.',
+        proyecto: 'RUC y cronograma aprobado. Seguro laboral obligatorio.'
+    };
+
+    // ======================== INICIALIZACIÓN ========================
+    window.onload = function() {
+        actualizarFecha();
+        inicializarTablas();
+        cambiarTipo('ingreso', document.querySelector('[data-type="ingreso"]'));
+        
+        let hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaIngreso').min = hoy;
+        document.getElementById('fechaIngreso').onchange = function() {
+            document.getElementById('fechaSalida').min = this.value;
+        };
+        
+        // Cargar solicitudes guardadas
+        renderizarSolicitudes();
+        actualizarAnalisis();
+    };
+
+    // ======================== TABS ========================
+    function switchTab(tab) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        
+        if(tab === 'solicitar') {
+            document.getElementById('panelSolicitar').classList.add('active');
+            document.querySelector('.tab:first-child').classList.add('active');
+        } else if(tab === 'admin') {
+            document.getElementById('panelAdmin').classList.add('active');
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            renderizarSolicitudes();
+            actualizarAnalisis();
+        } else if(tab === 'analisis') {
+            document.getElementById('panelAnalisis').classList.add('active');
+            document.querySelectorAll('.tab')[2].classList.add('active');
+            actualizarAnalisis();
+        }
+    }
+
+    // ======================== FECHA ========================
+    function actualizarFecha() {
+        let d = new Date();
+        let meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        document.getElementById('fechaEmisionTexto').innerText = 
+            `Cayambe, ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    // ======================== TIPO DE SOLICITUD ========================
+    function cambiarTipo(tipo, btn) {
+        tipoActual = tipo;
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        
+        actualizarCodigo();
+        
+        // Mostrar/ocultar secciones
+        document.getElementById('guiaSection').style.display = 'none';
+        document.getElementById('proyectoSection').style.display = 'none';
+        document.getElementById('investigacionSection').style.display = 'none';
+        document.getElementById('eventoSection').style.display = 'none';
+        document.getElementById('alojField').style.display = 'none';
+        
+        if(tipo === 'ingreso' || tipo === 'senderismo' || tipo === 'pesca' || tipo === 'montanismo') {
+            document.getElementById('guiaSection').style.display = 'block';
+            document.getElementById('alojField').style.display = 'block';
+        }
+        if(tipo === 'proyecto' || tipo === 'filmacion') {
+            document.getElementById('proyectoSection').style.display = 'block';
+        }
+        if(tipo === 'investigacion') {
+            document.getElementById('investigacionSection').style.display = 'block';
+            document.getElementById('proyectoSection').style.display = 'block';
+        }
+        if(tipo === 'evento') {
+            document.getElementById('eventoSection').style.display = 'block';
+        }
+        
+        document.getElementById('normasTexto').innerText = normas[tipo] || normas.ingreso;
+        document.getElementById('actividad').value = tipo;
+    }
+
+    function sincronizarActividad(val) {
+        const map = {
+            'ingreso':'ingreso','pesca':'pesca','senderismo':'senderismo',
+            'montanismo':'montanismo','evento':'evento','proyecto':'proyecto',
+            'filmacion':'filmacion','investigacion':'investigacion'
+        };
+        if(map[val]) {
+            cambiarTipo(map[val], document.querySelector(`[data-type="${map[val]}"]`));
+        }
+    }
+
+    // ======================== CÓDIGO ========================
+    function actualizarCodigo() {
+        let base = 'MAE-DAPOFC-PNCCza';
+        let map = {
+            ingreso:'INGRESO', pesca:'PESCA', senderismo:'TRAIL', 
+            montanismo:'MONTAÑISMO', evento:'EVENTO', filmacion:'FILM',
+            investigacion:'INV', proyecto:'PROY'
+        };
+        let sufijo = map[tipoActual] || 'INGRESO';
+        let year = new Date().getFullYear();
+        let seq = getSeq(tipoActual);
+        document.getElementById('codigoValor').innerText = 
+            `SOL-${base}-${sufijo}-${year}-${String(seq).padStart(3,'0')}`;
+    }
+
+    function getSeq(tipo) {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        let filtradas = solicitudes.filter(s => s.tipoActividad === tipo);
+        return filtradas.length + 1;
+    }
+
+    // ======================== TABLA DE VISITANTES ========================
+    function inicializarTablas() {
+        let tbody = document.getElementById('visitorsBody');
+        tbody.innerHTML = '';
+        for(let i=0; i<3; i++) agregarFilaVisitante();
+    }
+
+    function agregarFilaVisitante() {
+        let tbody = document.getElementById('visitorsBody');
+        let num = tbody.rows.length + 1;
+        let row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${num}</td>
+            <td><input type="text" placeholder="Nombre completo" class="v-nombre"></td>
+            <td><input type="text" placeholder="CI/Pasaporte" class="v-doc"></td>
+            <td><select class="v-pais"><option>Ecuador</option><option>Colombia</option><option>Perú</option><option>Otro</option></select></td>
+            <td><input type="number" placeholder="Edad" style="width:55px;" class="v-edad"></td>
+            <td><select class="v-genero"><option>M</option><option>F</option><option>Otro</option></select></td>
+            <td><input type="checkbox" class="v-guia"></td>
+        `;
+        actualizarContador();
+    }
+
+    function actualizarContador() {
+        let total = document.getElementById('visitorsBody').rows.length;
+        document.getElementById('paxCounter').innerHTML = `(${total} registrados)`;
+    }
+
+    // ======================== RECOLECTAR DATOS ========================
+    function recolectarDatos() {
+        let visitantes = [];
+        let tbody = document.getElementById('visitorsBody');
+        for(let i=0; i<tbody.rows.length; i++) {
+            let row = tbody.rows[i];
+            let nombre = row.cells[1].querySelector('input')?.value || '';
+            let documento = row.cells[2].querySelector('input')?.value || '';
+            if(nombre && documento) {
+                visitantes.push({
+                    nombre: nombre,
+                    documento: documento,
+                    pais: row.cells[3].querySelector('select')?.value || 'Ecuador',
+                    edad: row.cells[4].querySelector('input')?.value || '',
+                    genero: row.cells[5].querySelector('select')?.value || 'M',
+                    guia: row.cells[6].querySelector('input')?.checked ? 'Sí' : 'No'
+                });
+            }
+        }
+
+        return {
+            tipoDocumento: 'Solicitud de Ingreso',
+            codigo: document.getElementById('codigoValor').innerText,
+            fecha: document.getElementById('fechaEmisionTexto').innerText,
+            tipoActividad: tipoActual,
+            institucion: document.getElementById('institucion').value,
+            apellidos: document.getElementById('apellidos').value,
+            nombres: document.getElementById('nombres').value,
+            documento: document.getElementById('documento').value,
+            pais: document.getElementById('pais').value,
+            telefono: document.getElementById('telefono').value,
+            email: document.getElementById('email').value,
+            fechaIngreso: document.getElementById('fechaIngreso').value,
+            fechaSalida: document.getElementById('fechaSalida').value,
+            placa: document.getElementById('placa').value,
+            destino: document.getElementById('destinoSelect').value === 'otro' ? 'OTRO - Ver objetivo' : document.getElementById('destinoSelect').value,
+            actividad: document.getElementById('actividad').value,
+            objetivo: document.getElementById('objetivo').value,
+            alojamiento: document.getElementById('alojamiento').value || '',
+            guia: {
+                apellido: document.getElementById('guiaApellido').value || '',
+                nombre: document.getElementById('guiaNombre').value || '',
+                carnet: document.getElementById('guiaCarnet').value || '',
+                vigencia: document.getElementById('guiaVigencia').value || '',
+                nacionalidad: document.getElementById('guiaNacionalidad').value || '',
+                telefono: document.getElementById('guiaTelefono').value || ''
+            },
+            proyecto: {
+                nombre: document.getElementById('proyectoNombre').value || '',
+                direccion: document.getElementById('proyectoDireccion').value || '',
+                dias: document.getElementById('proyectoDias').value || ''
+            },
+            investigacion: {
+                titulo: document.getElementById('invNombre').value || '',
+                entidad: document.getElementById('invEntidad').value || '',
+                numero: document.getElementById('invNumero').value || '',
+                desde: document.getElementById('invDesde').value || '',
+                hasta: document.getElementById('invHasta').value || ''
+            },
+            evento: {
+                nombre: document.getElementById('eventoNombre').value || '',
+                competidores: document.getElementById('nCompetidores').value || '',
+                logistica: document.getElementById('nLogistica').value || ''
+            },
+            visitantes: visitantes,
+            totalVisitantes: visitantes.length,
+            compromiso: document.getElementById('compromisoCheck').checked,
+            normas: document.getElementById('normasTexto').innerText
+        };
+    }
+
+    // ======================== ENVIAR SOLICITUD ========================
+    function enviarSolicitud() {
+        let datos = recolectarDatos();
+        
+        if(!datos.apellidos || !datos.nombres || !datos.documento || !datos.telefono || !datos.email) {
+            mostrarToast('Complete los campos obligatorios del responsable', true);
+            return;
+        }
+        if(!datos.fechaIngreso || !datos.fechaSalida) {
+            mostrarToast('Seleccione fechas de ingreso y salida', true);
+            return;
+        }
+        if(!datos.destino || datos.destino === 'Seleccionar...') {
+            mostrarToast('Seleccione un destino de visita', true);
+            return;
+        }
+        if(!datos.compromiso) {
+            mostrarToast('Debe aceptar el compromiso', true);
+            return;
+        }
+        if(datos.fechaIngreso > datos.fechaSalida) {
+            mostrarToast('La fecha de salida debe ser posterior a la de ingreso', true);
+            return;
+        }
+        if(datos.visitantes.length === 0) {
+            mostrarToast('Debe agregar al menos un visitante', true);
+            return;
+        }
+
+        let solicitud = {
+            id: Date.now(),
+            ...datos,
+            fechaSolicitud: new Date().toISOString(),
+            estado: 'pendiente',
+            respuesta: '',
+            fechaRespuesta: null
+        };
+
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        solicitudes.push(solicitud);
+        localStorage.setItem('solicitudes_pncc', JSON.stringify(solicitudes));
+
+        mostrarToast(`✅ Solicitud enviada. Código: ${solicitud.codigo}`);
+        
+        // Limpiar formulario después de enviar
+        setTimeout(() => {
+            limpiarFormulario();
+            actualizarAnalisis();
+        }, 1000);
+    }
+
+    // ======================== LIMPIAR FORMULARIO ========================
+    function limpiarFormulario() {
+        document.querySelectorAll('#panelSolicitar input:not([type="checkbox"]), #panelSolicitar select, #panelSolicitar textarea')
+            .forEach(el => el.value = '');
+        document.getElementById('compromisoCheck').checked = false;
+        document.getElementById('destinoSelect').value = '';
+        inicializarTablas();
+        mostrarToast('Formulario limpiado');
+    }
+
+    // ======================== TOAST ========================
+    function mostrarToast(msg, error = false) {
+        let toast = document.getElementById('toast');
+        document.getElementById('toastMsg').innerText = msg;
+        toast.className = 'toast' + (error ? ' error' : '');
+        toast.style.display = 'flex';
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    // ======================== ADMIN: RENDERIZAR SOLICITUDES ========================
+    function renderizarSolicitudes() {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        let busqueda = document.getElementById('buscarSolicitud').value.toLowerCase();
+        let filtroEstado = document.getElementById('filtroEstado').value;
+        let filtroTipo = document.getElementById('filtroTipo').value;
+
+        let filtradas = solicitudes.filter(s => {
+            let matchBusqueda = !busqueda || 
+                s.codigo.toLowerCase().includes(busqueda) || 
+                (s.apellidos + ' ' + s.nombres).toLowerCase().includes(busqueda) ||
+                s.documento.includes(busqueda);
+            let matchEstado = !filtroEstado || s.estado === filtroEstado;
+            let matchTipo = !filtroTipo || s.tipoActividad === filtroTipo;
+            return matchBusqueda && matchEstado && matchTipo;
+        });
+
+        filtradas.sort((a, b) => new Date(b.fechaSolicitud) - new Date(a.fechaSolicitud));
+
+        // Estadísticas
+        document.getElementById('totalSolicitudes').textContent = solicitudes.length;
+        document.getElementById('pendientesCount').textContent = solicitudes.filter(s => s.estado === 'pendiente').length;
+        document.getElementById('aprobadasCount').textContent = solicitudes.filter(s => s.estado === 'aprobada').length;
+        document.getElementById('rechazadasCount').textContent = solicitudes.filter(s => s.estado === 'rechazada').length;
+
+        let container = document.getElementById('listaSolicitudes');
+        if(filtradas.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No hay solicitudes</p></div>`;
+            return;
+        }
+
+        let html = '';
+        filtradas.forEach((s, idx) => {
+            let originalIdx = solicitudes.indexOf(s);
+            let estadoClase = `estado-${s.estado}`;
+            let tipoMap = {
+                ingreso:'Ingreso', pesca:'Pesca', senderismo:'Senderismo',
+                montanismo:'Montañismo', evento:'Evento', proyecto:'Proyecto',
+                filmacion:'Filmación', investigacion:'Investigación'
+            };
+            let fecha = new Date(s.fechaSolicitud).toLocaleDateString('es-EC');
+
+            html += `
+                <div class="solicitud-item">
+                    <div class="header-row">
+                        <div>
+                            <span class="codigo">${s.codigo}</span>
+                            <span class="badge">${tipoMap[s.tipoActividad] || s.tipoActividad}</span>
+                            <span class="badge">${fecha}</span>
+                        </div>
+                        <span class="estado ${estadoClase}">${s.estado.toUpperCase()}</span>
+                    </div>
+                    <div class="detalle">
+                        <span><strong>Solicitante:</strong> ${s.apellidos} ${s.nombres}</span>
+                        <span><strong>Documento:</strong> ${s.documento}</span>
+                        <span><strong>Email:</strong> ${s.email}</span>
+                        <span><strong>Fechas:</strong> ${s.fechaIngreso} → ${s.fechaSalida}</span>
+                        <span><strong>Destino:</strong> ${s.destino}</span>
+                        <span><strong>Visitantes:</strong> ${s.totalVisitantes}</span>
+                    </div>
+                    ${s.respuesta ? `<div style="background:#f0fdf4;padding:6px 12px;border-radius:6px;font-size:13px;margin-top:6px;border-left:3px solid #22c55e;"><strong>Respuesta:</strong> ${s.respuesta}</div>` : ''}
+                    <div class="acciones">
+                        <button class="btn btn-primary btn-sm" onclick="verDetalle(${originalIdx})"><i class="fas fa-eye"></i> Ver</button>
+                        ${s.estado === 'pendiente' ? `<button class="btn btn-success btn-sm" onclick="abrirResponder(${originalIdx})"><i class="fas fa-reply"></i> Responder</button>` : ''}
+                        <button class="btn btn-outline btn-sm" onclick="exportarSolicitudExcel(${originalIdx})"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-outline btn-sm" onclick="imprimirSolicitud(${originalIdx})"><i class="fas fa-print"></i> Imprimir</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarSolicitud(${originalIdx})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ======================== VER DETALLE ========================
+    function verDetalle(idx) {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        let s = solicitudes[idx];
+        if(!s) return;
+
+        let visitantesHtml = s.visitantes.map((v,i) => 
+            `<tr><td>${i+1}</td><td>${v.nombre}</td><td>${v.documento}</td><td>${v.pais}</td><td>${v.edad}</td><td>${v.genero}</td><td>${v.guia}</td></tr>`
+        ).join('');
+
+        let html = `
+            <div style="background:var(--gray);padding:20px;border-radius:12px;margin-top:10px;">
+                <h3 style="color:var(--primary);">${s.codigo}</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;">
+                    <div><strong>Solicitante:</strong> ${s.apellidos} ${s.nombres}</div>
+                    <div><strong>Documento:</strong> ${s.documento}</div>
+                    <div><strong>Email:</strong> ${s.email}</div>
+                    <div><strong>Teléfono:</strong> ${s.telefono}</div>
+                    <div><strong>Fechas:</strong> ${s.fechaIngreso} al ${s.fechaSalida}</div>
+                    <div><strong>Destino:</strong> ${s.destino}</div>
+                    <div><strong>Actividad:</strong> ${s.actividad}</div>
+                    <div><strong>Visitantes:</strong> ${s.totalVisitantes}</div>
+                </div>
+                <div><strong>Objetivo:</strong> ${s.objetivo}</div>
+                <div style="margin-top:10px;"><strong>Visitantes:</strong>
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:5px;">
+                        <thead><tr style="background:#e2e8f0;"><th>#</th><th>Nombre</th><th>Documento</th><th>País</th><th>Edad</th><th>Género</th><th>Guía</th></tr></thead>
+                        <tbody>${visitantesHtml}</tbody>
+                    </table>
+                </div>
+                ${s.respuesta ? `<div style="margin-top:10px;background:#dcfce7;padding:10px;border-radius:8px;"><strong>Respuesta:</strong> ${s.respuesta}</div>` : ''}
+                <button onclick="renderizarSolicitudes()" style="margin-top:12px;background:#e2e8f0;border:none;padding:6px 20px;border-radius:8px;cursor:pointer;">Volver</button>
+            </div>
+        `;
+        document.getElementById('listaSolicitudes').innerHTML = html;
+    }
+
+    // ======================== RESPONDER ========================
+    function abrirResponder(idx) {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        let s = solicitudes[idx];
+        if(!s) return;
+        document.getElementById('responderCodigo').textContent = s.codigo;
+        document.getElementById('responderIdx').value = idx;
+        document.getElementById('responderEstado').value = s.estado || 'pendiente';
+        document.getElementById('responderMensaje').value = s.respuesta || '';
+        document.getElementById('responderModal').classList.add('active');
+    }
+
+    function cerrarResponder() {
+        document.getElementById('responderModal').classList.remove('active');
+    }
+
+    function enviarRespuesta() {
+        let idx = parseInt(document.getElementById('responderIdx').value);
+        let estado = document.getElementById('responderEstado').value;
+        let mensaje = document.getElementById('responderMensaje').value.trim();
+
+        if(!mensaje) {
+            mostrarToast('Escriba un mensaje de respuesta', true);
+            return;
+        }
+
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        if(solicitudes[idx]) {
+            solicitudes[idx].estado = estado;
+            solicitudes[idx].respuesta = mensaje;
+            solicitudes[idx].fechaRespuesta = new Date().toISOString();
+            localStorage.setItem('solicitudes_pncc', JSON.stringify(solicitudes));
+            
+            // Si se aprueba, generar autorización
+            if(estado === 'aprobada') {
+                generarPDFAutorizacion(solicitudes[idx]);
+            }
+            
+            mostrarToast(`✅ Respuesta enviada. Estado: ${estado}`);
+            cerrarResponder();
+            renderizarSolicitudes();
+            actualizarAnalisis();
+        }
+    }
+
+    // ======================== GENERAR PDF AUTORIZACIÓN ========================
+    function generarPDFAutorizacion(solicitud) {
+        let visitantesHtml = solicitud.visitantes.map((v,i) => 
+            `<tr><td style="padding:6px 8px;border:1px solid #e2e8f0;">${i+1}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">${v.nombre}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">${v.documento}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;">${v.pais}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">${v.edad}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">${v.genero}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">${v.guia}</td></tr>`
+        ).join('');
+
+        let fechaActual = new Date().toLocaleDateString('es-EC', { year:'numeric', month:'long', day:'numeric' });
+
+        let html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>AUTORIZACIÓN - ${solicitud.codigo}</title>
+        <style>
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family: 'Times New Roman', Arial, sans-serif; padding:30px; background:white; }
+            .page { max-width:1000px; margin:0 auto; }
+            .header { text-align:center; border-bottom:3px solid #0F6E56; padding-bottom:15px; margin-bottom:25px; }
+            .header h1 { color:#0F6E56; font-size:26px; letter-spacing:2px; }
+            .header h2 { font-size:20px; color:#1e293b; margin-top:5px; }
+            .header .sub { color:#64748b; font-size:14px; margin-top:5px; }
+            .estado-badge { display:inline-block; background:#22c55e; color:white; padding:5px 20px; border-radius:20px; font-size:14px; font-weight:700; margin-top:8px; }
+            .section { margin-bottom:20px; border:1px solid #e2e8f0; border-radius:8px; padding:15px 20px; }
+            .section-title { font-weight:700; font-size:15px; color:#0F6E56; border-bottom:2px solid #0F6E56; padding-bottom:8px; margin-bottom:12px; text-transform:uppercase; }
+            .grid { display:table; width:100%; }
+            .grid-row { display:table-row; }
+            .grid-item { display:table-cell; padding:4px 8px 4px 0; width:50%; }
+            .grid-item strong { color:#334155; display:inline-block; min-width:120px; }
+            table { width:100%; border-collapse:collapse; font-size:12px; margin-top:5px; }
+            th, td { border:1px solid #e2e8f0; padding:6px 8px; text-align:left; }
+            th { background:#0F6E56; color:white; font-weight:600; }
+            .normas-box { background:#f8fafc; padding:12px 18px; border-radius:6px; font-size:13px; border-left:4px solid #0F6E56; }
+            .firma-area { display:flex; justify-content:center; margin-top:30px; padding-top:20px; border-top:1px solid #e2e8f0; }
+            .firma-item { text-align:center; width:45%; }
+            .firma-linea { border-top:1px solid #94a3b8; width:220px; margin:35px auto 5px; }
+            .firma-item p { font-size:12px; color:#64748b; margin-top:5px; }
+            .firma-item .nombre { font-weight:700; color:#1e293b; font-size:13px; }
+            .footer { margin-top:30px; border-top:2px solid #e2e8f0; padding-top:15px; font-size:11px; color:#64748b; text-align:center; }
+            .validez { background:#f0fdf4; padding:12px 18px; border-radius:8px; border-left:4px solid #22c55e; font-size:13px; margin-top:10px; }
+        </style>
+        </head>
+        <body>
+        <div class="page">
+            <div class="header">
+                <h1>🌿 PARQUE NACIONAL CAYAMBE COCA</h1>
+                <h2>AUTORIZACIÓN DE INGRESO</h2>
+                <div class="sub"><strong>Código:</strong> ${solicitud.codigo} &nbsp;|&nbsp; <strong>Fecha:</strong> ${fechaActual}</div>
+                <div class="estado-badge">✅ APROBADA</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📋 DATOS DEL RESPONSABLE</div>
+                <div class="grid">
+                    <div class="grid-row">
+                        <div class="grid-item"><strong>Solicitante:</strong> ${solicitud.apellidos} ${solicitud.nombres}</div>
+                        <div class="grid-item"><strong>Documento:</strong> ${solicitud.documento}</div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-item"><strong>Email:</strong> ${solicitud.email}</div>
+                        <div class="grid-item"><strong>Teléfono:</strong> ${solicitud.telefono}</div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-item"><strong>Institución:</strong> ${solicitud.institucion || 'N/A'}</div>
+                        <div class="grid-item"><strong>Nacionalidad:</strong> ${solicitud.pais}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📅 DATOS DEL INGRESO</div>
+                <div class="grid">
+                    <div class="grid-row">
+                        <div class="grid-item"><strong>Fecha ingreso:</strong> ${solicitud.fechaIngreso}</div>
+                        <div class="grid-item"><strong>Fecha salida:</strong> ${solicitud.fechaSalida}</div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-item"><strong>Destino:</strong> ${solicitud.destino}</div>
+                        <div class="grid-item"><strong>Actividad:</strong> ${solicitud.actividad}</div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-item"><strong>Placa vehículo:</strong> ${solicitud.placa || 'N/A'}</div>
+                        <div class="grid-item"><strong>Alojamiento:</strong> ${solicitud.alojamiento || 'N/A'}</div>
+                    </div>
+                </div>
+                <div style="margin-top:10px;"><strong>Objetivo:</strong> ${solicitud.objetivo}</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">👥 VISITANTES AUTORIZADOS (${solicitud.totalVisitantes})</div>
+                <table>
+                    <thead>
+                        <tr><th>#</th><th>Nombre</th><th>Documento</th><th>País</th><th style="text-align:center;">Edad</th><th style="text-align:center;">Género</th><th style="text-align:center;">Guía</th></tr>
+                    </thead>
+                    <tbody>${visitantesHtml}</tbody>
+                </table>
+                <div style="margin-top:8px;font-size:11px;color:#64748b;font-style:italic;">* Solo las personas listadas tienen autorización para ingresar al Área Protegida.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">⚖️ NORMAS APLICABLES</div>
+                <div class="normas-box">${solicitud.normas}</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">✅ AUTORIZACIÓN</div>
+                <p style="font-size:14px;line-height:1.7;color:#1e293b;">
+                    Por medio de la presente, se <strong>AUTORIZA</strong> el ingreso al <strong>Parque Nacional Cayambe Coca</strong> 
+                    al solicitante y visitantes listados, bajo el cumplimiento de las normas establecidas y disposiciones legales vigentes.
+                </p>
+                <div class="validez">
+                    <strong>📌 Documento válido para:</strong> ${solicitud.fechaIngreso} al ${solicitud.fechaSalida}
+                </div>
+            </div>
+
+            <div class="firma-area">
+                <div class="firma-item">
+                    <div class="firma-linea"></div>
+                    <p class="nombre">Responsable PNCC</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Documento generado automáticamente - Parque Nacional Cayambe Coca</p>
+                <p style="margin-top:3px;">Este documento debe ser presentado al ingreso junto con la identificación de cada visitante.</p>
+                <p style="margin-top:3px;font-size:10px;">Generado: ${new Date().toLocaleString('es-EC')}</p>
+            </div>
+        </div>
+        </body>
+        </html>`;
+
+        html2pdf().set({
+            margin: [0.4, 0.4, 0.4, 0.4],
+            filename: `AUTORIZACION_${solicitud.codigo}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        }).from(html).save();
+    }
+
+    // ======================== ELIMINAR ========================
+    function eliminarSolicitud(idx) {
+        if(!confirm('¿Está seguro de eliminar esta solicitud?')) return;
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        solicitudes.splice(idx, 1);
+        localStorage.setItem('solicitudes_pncc', JSON.stringify(solicitudes));
+        mostrarToast('Solicitud eliminada');
+        renderizarSolicitudes();
+        actualizarAnalisis();
+    }
+
+    function eliminarTodasSolicitudes() {
+        if(!confirm('¿Está seguro de eliminar TODAS las solicitudes?')) return;
+        localStorage.removeItem('solicitudes_pncc');
+        mostrarToast('Todas las solicitudes eliminadas');
+        renderizarSolicitudes();
+        actualizarAnalisis();
+    }
+
+    // ======================== EXPORTAR ========================
+    function exportarSolicitudesExcel() {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        if(solicitudes.length === 0) { mostrarToast('No hay solicitudes para exportar', true); return; }
+        
+        let data = [['PNCC Cayambe Coca - Lista de Solicitudes'],[]];
+        data.push(['Código','Tipo','Solicitante','Documento','Email','Fechas','Destino','Actividad','Estado','Fecha Solicitud']);
+        
+        solicitudes.forEach(s => {
+            data.push([
+                s.codigo, s.tipoActividad, `${s.apellidos} ${s.nombres}`,
+                s.documento, s.email, `${s.fechaIngreso} al ${s.fechaSalida}`,
+                s.destino, s.actividad, s.estado,
+                new Date(s.fechaSolicitud).toLocaleDateString('es-EC')
+            ]);
+        });
+        
+        let ws = XLSX.utils.aoa_to_sheet(data);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Solicitudes');
+        XLSX.writeFile(wb, 'Solicitudes_PNCC.xlsx');
+        mostrarToast('Solicitudes exportadas a Excel');
+    }
+
+    function exportarSolicitudExcel(idx) {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        let s = solicitudes[idx];
+        if(!s) return;
+        
+        let data = [['PNCC Cayambe Coca - Solicitud'],['Código',s.codigo],['Solicitante',`${s.apellidos} ${s.nombres}`],['Documento',s.documento],['Email',s.email],['Fechas',`${s.fechaIngreso} al ${s.fechaSalida}`],['Destino',s.destino],['Actividad',s.actividad],['Estado',s.estado],[],['VISITANTES'],['#','Nombre','Documento','País','Edad','Género','Guía']];
+        s.visitantes.forEach((v,i) => data.push([i+1, v.nombre, v.documento, v.pais, v.edad, v.genero, v.guia]));
+        
+        let ws = XLSX.utils.aoa_to_sheet(data);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Solicitud');
+        XLSX.writeFile(wb, `Solicitud_${s.codigo}.xlsx`);
+        mostrarToast('Solicitud exportada a Excel');
+    }
+
+    function exportarExcel() {
+        let d = recolectarDatos();
+        let data = [['PNCC CAYAMBE COCA - FORMULARIO'],['Código',d.codigo],['Solicitante',`${d.apellidos} ${d.nombres}`],['Documento',d.documento],['Email',d.email],['Fechas',`${d.fechaIngreso} al ${d.fechaSalida}`],['Destino',d.destino],['Actividad',d.actividad],[],['VISITANTES'],['#','Nombre','Documento','País','Edad','Género','Guía']];
+        d.visitantes.forEach((v,i) => data.push([i+1, v.nombre, v.documento, v.pais, v.edad, v.genero, v.guia]));
+        let ws = XLSX.utils.aoa_to_sheet(data);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'PNCC');
+        XLSX.writeFile(wb, `PNCC_${d.codigo}.xlsx`);
+        mostrarToast('Excel generado');
+    }
+
+    function exportarWord() {
+        let d = recolectarDatos();
+        let visitantesHtml = d.visitantes.map((v,i) => 
+            `<tr><td>${i+1}</td><td>${v.nombre}</td><td>${v.documento}</td><td>${v.pais}</td><td>${v.edad}</td><td>${v.genero}</td><td>${v.guia}</td></tr>`
+        ).join('');
+        
+        let html = `
+        <html>
+        <head><meta charset="UTF-8"><title>PNCC - ${d.codigo}</title>
+        <style>body{font-family:Arial;margin:20px}.header{text-align:center;border-bottom:2px solid #0F6E56;padding-bottom:20px}.section{border:1px solid #ccc;border-radius:10px;padding:15px;margin-bottom:20px}.section-title{font-size:16px;font-weight:bold;border-bottom:2px solid #0F6E56;margin-bottom:10px;color:#0F6E56}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#0F6E56;color:white}</style>
+        </head>
+        <body>
+        <div class="header"><h1>${d.tipoDocumento}</h1><h2>Parque Nacional Cayambe Coca</h2><p><strong>Código:</strong> ${d.codigo}</p><p><strong>Fecha:</strong> ${d.fecha}</p></div>
+        <div class="section"><div class="section-title">Datos del Responsable</div><p><strong>Solicitante:</strong> ${d.apellidos} ${d.nombres}</p><p><strong>Documento:</strong> ${d.documento}</p><p><strong>Email:</strong> ${d.email}</p><p><strong>Teléfono:</strong> ${d.telefono}</p></div>
+        <div class="section"><div class="section-title">Datos del Ingreso</div><p><strong>Fechas:</strong> ${d.fechaIngreso} al ${d.fechaSalida}</p><p><strong>Destino:</strong> ${d.destino}</p><p><strong>Actividad:</strong> ${d.actividad}</p><p><strong>Objetivo:</strong> ${d.objetivo}</p></div>
+        <div class="section"><div class="section-title">Visitantes (${d.totalVisitantes})</div><table><thead><tr><th>#</th><th>Nombre</th><th>Documento</th><th>País</th><th>Edad</th><th>Género</th><th>Guía</th></tr></thead><tbody>${visitantesHtml}</tbody></table></div>
+        <div class="section"><div class="section-title">Normas Aplicables</div><p>${d.normas}</p></div>
+        <div class="section"><div class="section-title">Compromiso</div><p>Aceptado: ${d.compromiso ? 'Sí' : 'No'}</p></div>
+        </body>
+        </html>`;
+        
+        let blob = new Blob([html], {type:'application/msword'});
+        saveAs(blob, `PNCC_${d.codigo}.doc`);
+        mostrarToast('Word generado');
+    }
+
+    function exportarPDF() {
+        let d = recolectarDatos();
+        let visitantesHtml = d.visitantes.map((v,i) => 
+            `<tr><td>${i+1}</td><td>${v.nombre}</td><td>${v.documento}</td><td>${v.pais}</td><td>${v.edad}</td><td>${v.genero}</td><td>${v.guia}</td></tr>`
+        ).join('');
+        
+        let html = `
+        <html>
+        <head><meta charset="UTF-8"><title>PNCC - ${d.codigo}</title>
+        <style>body{font-family:Arial;margin:20px}.header{text-align:center;border-bottom:2px solid #0F6E56;padding-bottom:20px}.section{border:1px solid #ccc;border-radius:10px;padding:15px;margin-bottom:20px}.section-title{font-size:16px;font-weight:bold;border-bottom:2px solid #0F6E56;margin-bottom:10px;color:#0F6E56}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#0F6E56;color:white}</style>
+        </head>
+        <body>
+        <div class="header"><h1>${d.tipoDocumento}</h1><h2>Parque Nacional Cayambe Coca</h2><p><strong>Código:</strong> ${d.codigo}</p><p><strong>Fecha:</strong> ${d.fecha}</p></div>
+        <div class="section"><div class="section-title">Datos del Responsable</div><p><strong>Solicitante:</strong> ${d.apellidos} ${d.nombres}</p><p><strong>Documento:</strong> ${d.documento}</p><p><strong>Email:</strong> ${d.email}</p><p><strong>Teléfono:</strong> ${d.telefono}</p></div>
+        <div class="section"><div class="section-title">Datos del Ingreso</div><p><strong>Fechas:</strong> ${d.fechaIngreso} al ${d.fechaSalida}</p><p><strong>Destino:</strong> ${d.destino}</p><p><strong>Actividad:</strong> ${d.actividad}</p><p><strong>Objetivo:</strong> ${d.objetivo}</p></div>
+        <div class="section"><div class="section-title">Visitantes (${d.totalVisitantes})</div><table><thead><tr><th>#</th><th>Nombre</th><th>Documento</th><th>País</th><th>Edad</th><th>Género</th><th>Guía</th></tr></thead><tbody>${visitantesHtml}</tbody></table></div>
+        </body>
+        </html>`;
+        
+        html2pdf().set({
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: `Solicitud_PNCC.pdf`,
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        }).from(html).save();
+        mostrarToast('PDF generado');
+    }
+
+    function imprimirSolicitud(idx) {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        let s = solicitudes[idx];
+        if(!s) return;
+        
+        let visitantesHtml = s.visitantes.map((v,i) => 
+            `<tr><td>${i+1}</td><td>${v.nombre}</td><td>${v.documento}</td><td>${v.pais}</td><td>${v.edad}</td><td>${v.genero}</td><td>${v.guia}</td></tr>`
+        ).join('');
+        
+        let html = `
+        <html>
+        <head><meta charset="UTF-8"><title>${s.codigo}</title>
+        <style>body{font-family:Arial;margin:20px}.header{text-align:center;border-bottom:2px solid #0F6E56;padding-bottom:20px}.section{border:1px solid #ccc;border-radius:10px;padding:15px;margin-bottom:20px}.section-title{font-size:16px;font-weight:bold;border-bottom:2px solid #0F6E56;margin-bottom:10px;color:#0F6E56}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#0F6E56;color:white}.estado{padding:4px 12px;border-radius:12px;color:white;display:inline-block}.estado-pendiente{background:#f59e0b}.estado-aprobada{background:#22c55e}.estado-rechazada{background:#ef4444}</style>
+        </head>
+        <body>
+        <div class="header"><h1>Parque Nacional Cayambe Coca</h1><p style="font-size:18px;font-weight:bold;">${s.tipoDocumento}</p><p><strong>Código:</strong> ${s.codigo} | <strong>Fecha:</strong> ${new Date(s.fechaSolicitud).toLocaleDateString('es-EC')}</p><p><span class="estado estado-${s.estado}">${s.estado.toUpperCase()}</span></p></div>
+        <div class="section"><div class="section-title">Datos del Responsable</div><p><strong>Nombre:</strong> ${s.apellidos} ${s.nombres}</p><p><strong>Documento:</strong> ${s.documento}</p><p><strong>Email:</strong> ${s.email}</p><p><strong>Teléfono:</strong> ${s.telefono}</p></div>
+        <div class="section"><div class="section-title">Datos del Ingreso</div><p><strong>Fechas:</strong> ${s.fechaIngreso} al ${s.fechaSalida}</p><p><strong>Destino:</strong> ${s.destino}</p><p><strong>Actividad:</strong> ${s.actividad}</p><p><strong>Objetivo:</strong> ${s.objetivo}</p></div>
+        <div class="section"><div class="section-title">Visitantes (${s.totalVisitantes})</div><table><thead><tr><th>#</th><th>Nombre</th><th>Documento</th><th>País</th><th>Edad</th><th>Género</th><th>Guía</th></tr></thead><tbody>${visitantesHtml}</tbody></table></div>
+        ${s.respuesta ? `<div class="section"><div class="section-title">Respuesta</div><p>${s.respuesta}</p></div>` : ''}
+        </body>
+        </html>`;
+        
+        let ventana = window.open('', '_blank');
+        ventana.document.write(html);
+        ventana.document.close();
+        ventana.print();
+    }
+
+    // ======================== ANÁLISIS ========================
+    function actualizarAnalisis() {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        
+        document.getElementById('analisisTotal').textContent = solicitudes.length;
+        document.getElementById('analisisVisitantes').textContent = solicitudes.reduce((sum, s) => sum + s.totalVisitantes, 0);
+        document.getElementById('analisisAprobadas').textContent = solicitudes.filter(s => s.estado === 'aprobada').length;
+        document.getElementById('analisisPendientes').textContent = solicitudes.filter(s => s.estado === 'pendiente').length;
+
+        // Tipos de actividad
+        let tipos = {};
+        solicitudes.forEach(s => {
+            tipos[s.tipoActividad] = (tipos[s.tipoActividad] || 0) + 1;
+        });
+        let tiposHtml = '';
+        let tipoMap = {
+            ingreso:'Ingreso', pesca:'Pesca', senderismo:'Senderismo',
+            montanismo:'Montañismo', evento:'Evento', proyecto:'Proyecto',
+            filmacion:'Filmación', investigacion:'Investigación'
+        };
+        for(let [key, count] of Object.entries(tipos)) {
+            tiposHtml += `<span class="badge" style="background:#e2e8f0;padding:6px 12px;font-size:13px;">${tipoMap[key] || key}: ${count}</span>`;
+        }
+        document.getElementById('analisisTipos').innerHTML = tiposHtml || '<span style="color:#94a3b8;">No hay datos</span>';
+
+        // Destinos
+        let destinos = {};
+        solicitudes.forEach(s => {
+            destinos[s.destino] = (destinos[s.destino] || 0) + 1;
+        });
+        let destinosHtml = '';
+        let sortedDestinos = Object.entries(destinos).sort((a,b) => b[1] - a[1]);
+        sortedDestinos.forEach(([key, count]) => {
+            destinosHtml += `<span class="badge" style="background:#dcfce7;padding:6px 12px;font-size:13px;color:#166534;">${key}: ${count}</span>`;
+        });
+        document.getElementById('analisisDestinos').innerHTML = destinosHtml || '<span style="color:#94a3b8;">No hay datos</span>';
+    }
+
+    function exportarAnalisisExcel() {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        if(solicitudes.length === 0) { mostrarToast('No hay datos para exportar', true); return; }
+        
+        let data = [['ANÁLISIS PNCC CAYAMBE COCA'],[]];
+        data.push(['Total solicitudes', solicitudes.length]);
+        data.push(['Total visitantes', solicitudes.reduce((sum, s) => sum + s.totalVisitantes, 0)]);
+        data.push(['Aprobadas', solicitudes.filter(s => s.estado === 'aprobada').length]);
+        data.push(['Pendientes', solicitudes.filter(s => s.estado === 'pendiente').length]);
+        data.push(['Rechazadas', solicitudes.filter(s => s.estado === 'rechazada').length]);
+        data.push([]);
+        data.push(['Código','Tipo','Estado','Solicitante','Visitantes','Fechas','Destino']);
+        
+        solicitudes.forEach(s => {
+            data.push([
+                s.codigo, s.tipoActividad, s.estado,
+                `${s.apellidos} ${s.nombres}`,
+                s.totalVisitantes,
+                `${s.fechaIngreso} al ${s.fechaSalida}`,
+                s.destino
+            ]);
+        });
+        
+        let ws = XLSX.utils.aoa_to_sheet(data);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Análisis');
+        XLSX.writeFile(wb, 'Analisis_PNCC.xlsx');
+        mostrarToast('Análisis exportado a Excel');
+    }
+
+    function exportarAnalisisPDF() {
+        let solicitudes = JSON.parse(localStorage.getItem('solicitudes_pncc') || '[]');
+        if(solicitudes.length === 0) { mostrarToast('No hay datos para exportar', true); return; }
+        
+        let data = solicitudes.map(s => 
+            `<tr><td>${s.codigo}</td><td>${s.tipoActividad}</td><td>${s.estado}</td><td>${s.apellidos} ${s.nombres}</td><td>${s.totalVisitantes}</td><td>${s.fechaIngreso} al ${s.fechaSalida}</td><td>${s.destino}</td></tr>`
+        ).join('');
+        
+        let html = `
+        <html>
+        <head><meta charset="UTF-8"><title>Análisis PNCC</title>
+        <style>body{font-family:Arial;margin:20px}h1{color:#0F6E56;text-align:center;border-bottom:2px solid #0F6E56;padding-bottom:15px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #ddd;padding:6px}th{background:#0F6E56;color:white}.stats{display:flex;gap:20px;margin:20px 0;flex-wrap:wrap}.stat{background:#f1f5f9;padding:12px 20px;border-radius:8px;flex:1;min-width:100px;text-align:center}</style>
+        </head>
+        <body>
+        <h1>📊 Análisis - Parque Nacional Cayambe Coca</h1>
+        <div class="stats">
+            <div class="stat"><strong>${solicitudes.length}</strong><br>Total</div>
+            <div class="stat"><strong>${solicitudes.reduce((sum, s) => sum + s.totalVisitantes, 0)}</strong><br>Visitantes</div>
+            <div class="stat"><strong>${solicitudes.filter(s => s.estado === 'aprobada').length}</strong><br>Aprobadas</div>
+            <div class="stat"><strong>${solicitudes.filter(s => s.estado === 'pendiente').length}</strong><br>Pendientes</div>
+        </div>
+        <h3>Lista de Solicitudes</h3>
+        <table><thead><tr><th>Código</th><th>Tipo</th><th>Estado</th><th>Solicitante</th><th>Visitantes</th><th>Fechas</th><th>Destino</th></tr></thead><tbody>${data}</tbody></table>
+        </body>
+        </html>`;
+        
+        html2pdf().set({
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: 'Analisis_PNCC.pdf',
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+        }).from(html).save();
+        mostrarToast('Análisis PDF generado');
+    }
+
+    // ======================== FileSaver para Word ========================
+    // Incluir FileSaver desde CDN
+    (function() {
+        let script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
+        document.head.appendChild(script);
+    })();
+
+    // ======================== CERRAR MODAL CON ESC ========================
+    document.addEventListener('keydown', function(e) {
+        if(e.key === 'Escape') {
+            cerrarResponder();
+        }
+    });
+</script>
+
+</body>
+</html>
